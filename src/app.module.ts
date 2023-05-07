@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { AppResolver } from './app.resolver';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -15,6 +16,13 @@ import { AppResolver } from './app.resolver';
       definitions: {
         path: join(process.cwd(), 'src/graphql.ts'),
       },
+    }),
+
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'db.sqlite',
+      entities: [__dirname + '/../**/*.model{.ts,.js}'],
+      synchronize: true,
     }),
   ],
   controllers: [AppController],
