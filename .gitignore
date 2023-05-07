@@ -33,3 +33,10 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+
+# AUTO generated - files
+package-lock.json
+yarn.lock
+src/schema.gql
+src/graphql.ts
