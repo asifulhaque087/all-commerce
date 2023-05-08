@@ -6,6 +6,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { AppResolver } from './app.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CategoriesModule } from './categories/categories.module';
+
 
 @Module({
   imports: [
@@ -21,9 +23,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities: [__dirname + '/../**/*.model{.ts,.js}'],
+      entities: [__dirname + '/../**/*.enitity{.ts,.js}'],
       synchronize: true,
     }),
+
+    CategoriesModule,
+
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
