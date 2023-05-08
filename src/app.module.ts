@@ -7,7 +7,7 @@ import { join } from 'path';
 import { AppResolver } from './app.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
-
+import { Category } from './categories/entities/category.entity';
 
 @Module({
   imports: [
@@ -23,12 +23,16 @@ import { CategoriesModule } from './categories/categories.module';
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities: [__dirname + '/../**/*.enitity{.ts,.js}'],
+      // entities: [__dirname + '/../**/**.enitity{.ts,.js}'],
+      // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
+      // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
+
+      entities: [Category],
+
       synchronize: true,
     }),
 
     CategoriesModule,
-
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],

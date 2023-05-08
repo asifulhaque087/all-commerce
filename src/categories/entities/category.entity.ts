@@ -12,12 +12,12 @@ export class Category {
   @Field()
   title: string;
 
-  @Column()
-  @Field()
+  @Column({ default: null })
+  @Field({ nullable: true })
   photo?: string;
 
   @Column({ default: null })
-  @Field((type) => Int)
+  @Field(() => Int, { nullable: true })
   parentId?: number;
 
   // @Field(() => Int, { description: 'Example field (placeholder)' })
