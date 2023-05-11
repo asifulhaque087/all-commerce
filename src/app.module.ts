@@ -8,6 +8,8 @@ import { AppResolver } from './app.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
+import { ProductsModule } from './products/products.module';
+import { Option, Product, Variation } from './products/entities/product.entity';
 
 @Module({
   imports: [
@@ -27,12 +29,14 @@ import { Category } from './categories/entities/category.entity';
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
 
-      entities: [Category],
+      entities: [Category, Product, Variation, Option],
 
       synchronize: true,
     }),
 
     CategoriesModule,
+
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
