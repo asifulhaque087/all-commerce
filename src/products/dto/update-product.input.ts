@@ -30,4 +30,7 @@ export class UpdateOptionInput extends PartialType(CreateOptionInput) {
 
   @Field(() => String, { nullable: true })
   name: string;
+
+  @Field(() => Int, { nullable: true })
+  variation: number;
 }

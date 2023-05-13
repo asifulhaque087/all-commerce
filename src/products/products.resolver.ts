@@ -7,6 +7,7 @@ import {
   CreateVariationInput,
 } from './dto/create-product.input';
 import {
+  UpdateOptionInput,
   UpdateProductInput,
   UpdateVariationInput,
 } from './dto/update-product.input';
@@ -61,17 +62,17 @@ export class VariationsResolver {
     return this.productsService.createVariation(createVariationInput);
   }
 
-  @Query(() => [Product], { name: 'variations' })
+  @Query(() => [Variation], { name: 'variations' })
   findAllVariations() {
     return this.productsService.findAllVariations();
   }
 
-  @Query(() => Product, { name: 'variation' })
+  @Query(() => Variation, { name: 'variation' })
   findOneVariation(@Args('id', { type: () => Int }) id: number) {
     return this.productsService.findOneVariation(id);
   }
 
-  @Mutation(() => Product)
+  @Mutation(() => Variation)
   updateVariation(
     @Args('updateVariationInput') updateVariationInput: UpdateVariationInput,
   ) {
@@ -81,41 +82,41 @@ export class VariationsResolver {
     );
   }
 
-  @Mutation(() => Product)
+  @Mutation(() => Variation)
   removeVariation(@Args('id', { type: () => Int }) id: number) {
     return this.productsService.removeVariation(id);
   }
 }
 
 // options
-@Resolver(() => Variation)
+@Resolver(() => Option)
 export class OptionsResolver {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Mutation(() => Variation)
+  @Mutation(() => Option)
   createOption(
-    @Args('createVariationInput') createOptionInput: CreateOptionInput,
+    @Args('createOptionInput') createOptionInput: CreateOptionInput,
   ) {
-    return this.productsService.createOption(CreateVariationInput);
+    return this.productsService.createOption(createOptionInput);
   }
 
-  @Query(() => [Product], { name: 'options' })
+  @Query(() => [Option], { name: 'options' })
   findAllOptions() {
     return this.productsService.findAllOptions();
   }
 
-  @Query(() => Product, { name: 'option' })
+  @Query(() => Option, { name: 'option' })
   findOneOption(@Args('id', { type: () => Int }) id: number) {
     return this.productsService.findOneOption(id);
   }
 
-  @Mutation(() => Product)
+  @Mutation(() => Option)
   updateOption(
-    @Args('updateProductInput') updateProductInput: UpdateProductInput,
+    @Args('updateOptionInput') updateOptionInput: UpdateOptionInput,
   ) {
     return this.productsService.updateOption(
-      updateProductInput.id,
-      updateProductInput,
+      updateOptionInput.id,
+      updateOptionInput,
     );
   }
 

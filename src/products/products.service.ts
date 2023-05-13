@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {
+  CreateOptionInput,
   CreateProductInput,
   CreateVariationInput,
 } from './dto/create-product.input';
 import {
+  UpdateOptionInput,
   UpdateProductInput,
   UpdateVariationInput,
 } from './dto/update-product.input';
@@ -20,39 +22,81 @@ export class ProductsService {
   ) {}
 
   // products
-  create(createProductInput: CreateProductInput) {
-    return 'This action adds a new product';
+  async create(createProductInput: CreateProductInput) {
+    const { name, variation, option } = createProductInput;
+    const product = await this.productModel.create({
+      name,
+    });
+
+    const nvariation = await this.findOneVariation(variation);
+    const noption = await this.findOneOption(option);
+
+    product.variations = [nvariation];
+    product.options = [noption];
+
+    return await this.productModel.save(product);
   }
 
-  findAll() {
-    return this.productModel.find();
+  async findAll() {
+    return this.productModel.find({
+      relations: ['variations.options', 'options.products'],
+    });
+
+    // relations: ['variations.options', 'options'],
+
+    // return this.productModel.find({
+    //   relations: {
+    //     variations: {
+    //       options: true,
+    //     },
+    //   },
+
+    //   where: {
+    //     variations: {},
+    //   },
+    // });
+    // const products = await this.productModel
+    //   .createQueryBuilder()
+    //   .select('*')
+    //   .getRawMany();
+
+    // const products = this.productModel
+    //   .createQueryBuilder('product')
+    //   .leftJoinAndSelect('product.variations', 'variation')
+    //   .leftJoinAndSelect('product.options', 'poption')
+    //   .getMany();
+
+    // return products;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} product`;
+    return this.productModel.findOneBy({ id });
   }
 
   update(id: number, updateProductInput: UpdateProductInput) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: number) {
+    const product = await this.findOne(id);
+    const productCopy = Object.assign({}, product);
+    await this.productModel.remove(product);
+    return productCopy;
   }
 
   // variations
   async createVariation(createVariationInput: CreateVariationInput) {
     const { name } = createVariationInput;
-
-    const category = await this.variationModel.create({
+    const variation = await this.variationModel.create({
       name,
     });
-
-    return this.variationModel.save(category);
+    return this.variationModel.save(variation);
   }
 
   findAllVariations() {
-    return this.variationModel.find();
+    return this.variationModel.find({
+      relations: ['products', 'options'],
+    });
   }
 
   findOneVariation(id: number) {
@@ -76,23 +120,39 @@ export class ProductsService {
   }
 
   // options
-  createOption(createVariationInput: CreateVariationInput) {
-    return 'This action adds a new product';
+  async createOption(createOptionInput: CreateOptionInput) {
+    const { name, variation } = createOptionInput;
+
+    // const option = new this.optionModel();
+    const option = await this.optionModel.create({
+      name: name,
+    });
+
+    const ivariation = await this.findOneVariation(variation);
+    // option.variations = [ivariation];
+    return this.optionModel.save(option);
   }
 
   findAllOptions() {
-    return `This action returns all products`;
+    return this.optionModel.find({
+      relations: ['variation', 'products'],
+    });
   }
 
   findOneOption(id: number) {
-    return `This action returns a #${id} product`;
+    return this.optionModel.findOneBy({ id });
   }
 
-  updateOption(id: number, updateProductInput: UpdateProductInput) {
-    return `This action updates a #${id} product`;
+  async updateOption(id: number, updateOptionInput: UpdateOptionInput) {
+    const option = await this.findOneOption(id);
+    Object.assign(option, updateOptionInput);
+    return this.variationModel.save(option);
   }
 
-  removeOption(id: number) {
-    return `This action removes a #${id} product`;
+  async removeOption(id: number) {
+    const option = await this.findOneOption(id);
+    const optionCopy = Object.assign({}, option);
+    await this.optionModel.remove(option);
+    return optionCopy;
   }
 }
