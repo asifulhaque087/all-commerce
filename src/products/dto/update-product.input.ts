@@ -10,8 +10,14 @@ export class UpdateProductInput extends PartialType(CreateProductInput) {
   @Field(() => Int)
   id: number;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => String)
   name: string;
+
+  @Field(() => Int, { nullable: true })
+  variation: number;
+
+  @Field(() => Int, { nullable: true })
+  option: number;
 }
 
 @InputType()

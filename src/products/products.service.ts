@@ -10,7 +10,12 @@ import {
   UpdateVariationInput,
 } from './dto/update-product.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Option, Product, Variation } from './entities/product.entity';
+import {
+  Option,
+  Product,
+  ProductVariationOption,
+  Variation,
+} from './entities/product.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -19,6 +24,8 @@ export class ProductsService {
     @InjectRepository(Product) private productModel: Repository<Product>,
     @InjectRepository(Variation) private variationModel: Repository<Variation>,
     @InjectRepository(Option) private optionModel: Repository<Option>,
+    @InjectRepository(ProductVariationOption)
+    private pvoModel: Repository<ProductVariationOption>,
   ) {}
 
   // products
@@ -29,22 +36,49 @@ export class ProductsService {
       name,
     });
 
-    // await this.productModel.save(product);
+    await this.productModel.save(product);
 
     const nvariation = await this.findOneVariation(variation);
     const noption = await this.findOneOption(option);
 
-    product.variations = [nvariation];
+    const pvo = await this.pvoModel.create({
+      product,
+      variation: nvariation,
+      option: noption,
+    });
+
+    await this.pvoModel.save(pvo);
+
+    return product;
+
+    // product.variations = [nvariation];
     // product.options = [noption];
 
-    await this.productModel.save(product);
-    return product;
+    // await this.productModel.save(product);
+    // return product;
   }
 
   async findAll() {
-    return this.productModel.find({
-      relations: ['variations.options'],
-    });
+    // const products = this.productModel.find({
+    //   relations: ['pvos.variation.options'],
+    // });
+
+    // const products = this.productModel
+    //   .createQueryBuilder('product')
+    //   .leftJoinAndSelect('product.pvos', 'pvo')
+    //   .leftJoinAndSelect('pvo.variation', 'vari')
+    //   .leftJoinAndSelect('vari.options', 'option', 'option.id == product.id')
+    //   .getMany();
+
+    const products = this.productModel
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.pvos', 'pvo')
+      .leftJoinAndSelect('pvo.variation', 'vari')
+      .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
+      .leftJoinAndSelect('vpvo.option', 'vop')
+      .getMany();
+
+    return products;
 
     // relations: ['variations.options', 'options'],
 
@@ -77,8 +111,10 @@ export class ProductsService {
     return this.productModel.findOneBy({ id });
   }
 
-  update(id: number, updateProductInput: UpdateProductInput) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductInput: UpdateProductInput) {
+    const product = await this.findOne(id);
+    Object.assign(product, updateProductInput);
+    return this.productModel.save(product);
   }
 
   async remove(id: number) {
@@ -99,7 +135,7 @@ export class ProductsService {
 
   findAllVariations() {
     return this.variationModel.find({
-      relations: ['products', 'options'],
+      relations: ['options'],
     });
   }
 

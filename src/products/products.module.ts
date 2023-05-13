@@ -6,10 +6,22 @@ import {
   VariationsResolver,
 } from './products.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Option, Product, Variation } from './entities/product.entity';
+import {
+  Option,
+  Product,
+  ProductVariationOption,
+  Variation,
+} from './entities/product.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, Variation, Option])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Product,
+      Variation,
+      Option,
+      ProductVariationOption,
+    ]),
+  ],
   providers: [
     ProductsResolver,
     VariationsResolver,

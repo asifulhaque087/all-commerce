@@ -20,19 +20,23 @@ export class Product {
   @Field()
   name: string;
 
-  @ManyToMany((type) => Variation, (variation) => variation.products)
-  @JoinTable()
-  @Field((type) => [Variation])
-  variations: Variation[];
+  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.product)
+  @Field((type) => [ProductVariationOption])
+  pvos: ProductVariationOption[];
 
-  @ManyToMany((type) => Option, (option) => option.products)
-  @JoinTable({
-    name: 'product_variation_option',
-    joinColumns: [{ name: 'product_id' }],
-    inverseJoinColumns: [{ name: 'option_id' }],
-  })
-  @Field((type) => [Option])
-  options: Option[];
+  // @ManyToMany((type) => Variation, (variation) => variation.products)
+  // @JoinTable({
+  //   name: 'product_variation_option',
+  // })
+  // @Field((type) => [Variation])
+  // variations: Variation[];
+
+  // @ManyToMany((type) => Option, (option) => option.products)
+  // @JoinTable({
+  //   name: 'product_variation_option',
+  // })
+  // @Field((type) => [Option])
+  // options: Option[];
 }
 
 // variations
@@ -47,22 +51,21 @@ export class Variation {
   @Field()
   name: string;
 
-  @ManyToMany((type) => Product, (product) => product.variations)
-  @Field((type) => [Product])
-  products: Product[];
+  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.variation)
+  @Field((type) => [ProductVariationOption])
+  pvos: ProductVariationOption[];
 
-  @ManyToMany((type) => Option, (option) => option.variations)
-  @JoinTable({
-    name: 'product_variation_option',
-    joinColumns: [{ name: 'variation_id' }],
-    inverseJoinColumns: [{ name: 'option_id' }],
-  })
-  @Field((type) => [Option])
-  options: Option[];
+  // @ManyToMany((type) => Product, (product) => product.variations)
+  // @Field((type) => [Product])
+  // products: Product[];
+
+  // @ManyToMany((type) => Option, (option) => option.variations)
+  // @Field((type) => [Option])
+  // options: Option[];
 
   @OneToMany((type) => Option, (option) => option.variation)
   @Field((type) => [Option])
-  voptions: Option[];
+  options: Option[];
 }
 
 // options
@@ -77,17 +80,42 @@ export class Option {
   @Field()
   name: string;
 
-  @ManyToMany((type) => Product, (product) => product.options)
-  @Field((type) => [Product])
-  products: Product[];
+  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.option)
+  @Field((type) => [ProductVariationOption])
+  pvos: ProductVariationOption[];
 
-  @ManyToMany((type) => Variation, (variation) => variation.options)
-  @Field((type) => [Variation])
-  variations: Variation[];
+  // @ManyToMany((type) => Product, (product) => product.options)
+  // @Field((type) => [Product])
+  // products: Product[];
 
-  @ManyToOne((type) => Variation, (variation) => variation.voptions)
+  // @ManyToMany((type) => Variation, (variation) => variation.options)
+  // @Field((type) => [Variation])
+  // variations: Variation[];
+
+  @ManyToOne((type) => Variation, (variation) => variation.options)
   @Field((type) => Variation)
   variation: Variation;
+}
+
+// productvariationoption
+@ObjectType()
+@Entity()
+export class ProductVariationOption {
+  @PrimaryGeneratedColumn()
+  @Field((type) => Int)
+  id: number;
+
+  @ManyToOne(() => Product, (product) => product.pvos)
+  @Field((type) => Product)
+  product: Product;
+
+  @ManyToOne(() => Variation, (vari) => vari.pvos)
+  @Field((type) => Variation)
+  variation: Variation;
+
+  @ManyToOne(() => Option, (op) => op.pvos)
+  @Field((type) => Option)
+  option: Option;
 }
 
 // @Entity()
