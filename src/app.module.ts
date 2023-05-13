@@ -9,14 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ProductsModule } from './products/products.module';
-import {
-  Option,
-  Product,
-  Project,
-  Role,
-  User,
-  Variation,
-} from './products/entities/product.entity';
+import { Option, Product, Variation } from './products/entities/product.entity';
 
 @Module({
   imports: [
@@ -36,7 +29,7 @@ import {
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
 
-      entities: [Category, Product, Variation, Option, User, Project, Role],
+      entities: [Category, Product, Variation, Option],
 
       synchronize: true,
     }),

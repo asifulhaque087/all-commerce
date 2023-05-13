@@ -28,8 +28,8 @@ export class Product {
   @ManyToMany((type) => Option, (option) => option.products)
   @JoinTable({
     name: 'product_variation_option',
-    joinColumns: [{ name: 'productId' }],
-    inverseJoinColumns: [{ name: 'optionId' }],
+    joinColumns: [{ name: 'product_id' }],
+    inverseJoinColumns: [{ name: 'option_id' }],
   })
   @Field((type) => [Option])
   options: Option[];
@@ -54,15 +54,15 @@ export class Variation {
   @ManyToMany((type) => Option, (option) => option.variations)
   @JoinTable({
     name: 'product_variation_option',
-    joinColumns: [{ name: 'variationId' }],
-    inverseJoinColumns: [{ name: 'optionId' }],
+    joinColumns: [{ name: 'variation_id' }],
+    inverseJoinColumns: [{ name: 'option_id' }],
   })
   @Field((type) => [Option])
   options: Option[];
 
-  // @OneToMany((type) => Option, (option) => option.variation)
-  // @Field((type) => [Option])
-  // options: Option[];
+  @OneToMany((type) => Option, (option) => option.variation)
+  @Field((type) => [Option])
+  voptions: Option[];
 }
 
 // options
@@ -85,9 +85,9 @@ export class Option {
   @Field((type) => [Variation])
   variations: Variation[];
 
-  // @ManyToOne((type) => Variation, (variation) => variation.options)
-  // @Field((type) => Variation)
-  // variation: Variation;
+  @ManyToOne((type) => Variation, (variation) => variation.voptions)
+  @Field((type) => Variation)
+  variation: Variation;
 }
 
 // @Entity()
@@ -151,50 +151,33 @@ export class Option {
 //   },
 // ];
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  name: string;
-
-  @ManyToMany(() => Project, (project) => project.users)
-  @JoinTable()
-  projects: Project[];
-
-  @ManyToMany(() => Role, (role) => role.users)
-  @JoinTable()
-  roles: Role[];
-}
-
-@Entity()
-export class Project {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  name: string;
-
-  @ManyToMany(() => User, (user) => user.projects)
-  users: User[];
-
-  @ManyToMany(() => Role, (role) => role.projects)
-  @JoinTable()
-  roles: Role[];
-}
-
-@Entity()
-export class Role {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  name: string;
-
-  @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
-
-  @ManyToMany(() => Project, (project) => project.roles)
-  projects: Project[];
-}
+produts: [
+  {
+    name: 'tshirt',
+    description: 'lorem ipsum dollar',
+    variations: [
+      {
+        name: 'color',
+        options: [
+          {
+            name: 'red',
+          },
+          {
+            name: 'green',
+          },
+        ],
+      },
+      {
+        name: 'size',
+        options: [
+          {
+            name: 'x',
+          },
+          {
+            name: 'l',
+          },
+        ],
+      },
+    ],
+  },
+];

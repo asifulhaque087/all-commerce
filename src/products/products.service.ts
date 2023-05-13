@@ -24,22 +24,26 @@ export class ProductsService {
   // products
   async create(createProductInput: CreateProductInput) {
     const { name, variation, option } = createProductInput;
+
     const product = await this.productModel.create({
       name,
     });
+
+    // await this.productModel.save(product);
 
     const nvariation = await this.findOneVariation(variation);
     const noption = await this.findOneOption(option);
 
     product.variations = [nvariation];
-    product.options = [noption];
+    // product.options = [noption];
 
-    return await this.productModel.save(product);
+    await this.productModel.save(product);
+    return product;
   }
 
   async findAll() {
     return this.productModel.find({
-      relations: ['variations.options', 'options.products'],
+      relations: ['variations.options'],
     });
 
     // relations: ['variations.options', 'options'],
@@ -129,7 +133,7 @@ export class ProductsService {
     });
 
     const ivariation = await this.findOneVariation(variation);
-    // option.variations = [ivariation];
+    option.variation = ivariation;
     return this.optionModel.save(option);
   }
 
