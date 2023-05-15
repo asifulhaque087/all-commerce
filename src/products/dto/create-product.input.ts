@@ -13,6 +13,18 @@ export class CreateProductInput {
 }
 
 @InputType()
+export class AddOptionToProduct {
+  @Field(() => Int)
+  productId: number;
+
+  @Field(() => Int)
+  variationId: number;
+
+  @Field(() => Int)
+  optionId: number;
+}
+
+@InputType()
 export class CreateVariationInput {
   @Field(() => String, { description: 'name for variation' })
   name: string;

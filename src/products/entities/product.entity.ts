@@ -209,3 +209,53 @@ produts: [
     ],
   },
 ];
+
+produts: [
+  {
+    name: 'tshirt',
+    description: 'lorem ipsum dollar',
+    colors: [
+      {
+        color: 'red',
+        img: 'color er image',
+        multiImg: 'multiple image',
+      },
+
+      {
+        color: 'green',
+        img: 'color er image',
+        multiImg: 'multiple image',
+      },
+    ],
+    variations: [
+      {
+        name: 'size',
+        options: [
+          {
+            name: 'x',
+          },
+          {
+            name: 'l',
+          },
+        ],
+      },
+    ],
+    combination: [
+      {
+        stock: 10,
+        img: 'same color er image',
+        color: 'red',
+        multiImg: [{ url: '' }, { url: '' }],
+        options: [{ name: 'x' }, { material: 'wood' }],
+      },
+
+      {
+        stock: 10,
+        img: 'same color er image',
+        color: 'green',
+        multiImg: [{ url: '' }, { url: '' }],
+        options: [{ name: 'x' }, { material: 'wood' }],
+      },
+    ],
+  },
+];

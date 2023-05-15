@@ -1,7 +1,13 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { ProductsService } from './products.service';
-import { Option, Product, Variation } from './entities/product.entity';
 import {
+  Option,
+  Product,
+  ProductVariationOption,
+  Variation,
+} from './entities/product.entity';
+import {
+  AddOptionToProduct,
   CreateOptionInput,
   CreateProductInput,
   CreateVariationInput,
@@ -22,6 +28,18 @@ export class ProductsResolver {
     @Args('createProductInput') createProductInput: CreateProductInput,
   ) {
     return this.productsService.create(createProductInput);
+  }
+
+  @Mutation(() => ProductVariationOption)
+  addOptionToProduct(
+    @Args('addOptionToProduct') addOptionToProduct: AddOptionToProduct,
+  ) {
+    return this.productsService.addOptionToProduct(addOptionToProduct);
+  }
+
+  @Mutation(() => ProductVariationOption)
+  removeOptionFromProduct(@Args('id', { type: () => Int }) id: number) {
+    return this.productsService.removeOptionFromProduct(id);
   }
 
   @Query(() => [Product], { name: 'products' })

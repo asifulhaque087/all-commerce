@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  AddOptionToProduct,
   CreateOptionInput,
   CreateProductInput,
   CreateVariationInput,
@@ -56,6 +57,34 @@ export class ProductsService {
 
     // await this.productModel.save(product);
     // return product;
+  }
+
+  async addOptionToProduct(addOptionToProduct: AddOptionToProduct) {
+    // destructure dto
+    const { productId, variationId, optionId } = addOptionToProduct;
+
+    // finding coresponding object
+    const product = await this.findOne(productId);
+    const variation = await this.findOneVariation(variationId);
+    const option = await this.findOneOption(optionId);
+
+    // saving into product-variation-option table
+    const pvo = await this.pvoModel.create({
+      product,
+      variation,
+      option,
+    });
+
+    await this.pvoModel.save(pvo);
+
+    return pvo;
+  }
+
+  async removeOptionFromProduct(id: number) {
+    const pvo = await this.pvoModel.findBy({ id });
+    const pvoCopy = Object.assign({}, pvo);
+    await this.pvoModel.remove(pvo);
+    return pvoCopy;
   }
 
   async findAll() {
@@ -175,7 +204,7 @@ export class ProductsService {
 
   findAllOptions() {
     return this.optionModel.find({
-      relations: ['variation', 'products'],
+      relations: ['variation'],
     });
   }
 
