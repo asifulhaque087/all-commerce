@@ -46,7 +46,7 @@ export class ProductsService {
 
   // products
   async create(createProductInput: CreateProductInput) {
-    const { name, variationId, optionId, colorsWithImages } =
+    const { name, colorsWithImages, optionsWithVariations } =
       createProductInput;
 
     const product = await this.productModel.create({
@@ -55,17 +55,13 @@ export class ProductsService {
 
     await this.productModel.save(product);
 
-    const variation = await this.findOneVariation(variationId);
-    const option = await this.findOneOption(optionId);
+    // adding options for product
+    for (let i = 0; i < optionsWithVariations.length; i++) {
+      const { optionId, variationId } = optionsWithVariations[i];
+      await this.addOptionToProductUtil(product, variationId, optionId);
+    }
 
-    const pvo = await this.pvoModel.create({
-      product,
-      variation,
-      option,
-    });
-
-    await this.pvoModel.save(pvo);
-
+    // adding colors for product
     for (let i = 0; i < colorsWithImages.length; i++) {
       const { colorId, img } = colorsWithImages[i];
       await this.addColorToProductUtil(product, colorId, img);
@@ -76,10 +72,26 @@ export class ProductsService {
 
   async addOptionToProduct(addOptionToProduct: AddOptionToProduct) {
     // destructure dto
-    const { productId, variationId, optionId } = addOptionToProduct;
+    const { productId, optionsWithVariations } = addOptionToProduct;
 
-    // finding coresponding object
+    // finding product object
     const product = await this.findOne(productId);
+
+    // adding options for product
+    for (let i = 0; i < optionsWithVariations.length; i++) {
+      const { optionId, variationId } = optionsWithVariations[i];
+      await this.addOptionToProductUtil(product, variationId, optionId);
+    }
+
+    return product;
+  }
+
+  async addOptionToProductUtil(
+    product: Product,
+    variationId: number,
+    optionId: number,
+  ) {
+    // finding coresponding object
     const variation = await this.findOneVariation(variationId);
     const option = await this.findOneOption(optionId);
 

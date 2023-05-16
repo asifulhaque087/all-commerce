@@ -1,18 +1,33 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 
 @InputType()
+class OptionsWithVaritions {
+  @Field(() => Int)
+  optionId: number;
+
+  @Field(() => Int)
+  variationId: number;
+}
+
+@InputType()
 export class CreateProductInput {
   @Field(() => String, { description: 'name for product' })
   name: string;
 
-  @Field(() => [ColorsWithImgs])
+  // @Field(() => String, { description: 'description for product' })
+  // description: string;
+
+  @Field(() => [ColorsWithImgs], { nullable: true })
   colorsWithImages: ColorsWithImgs[];
 
-  @Field(() => Int, { nullable: true })
-  variationId: number;
+  @Field(() => [OptionsWithVaritions], { nullable: true })
+  optionsWithVariations: OptionsWithVaritions[];
 
-  @Field(() => Int, { nullable: true })
-  optionId: number;
+  // @Field(() => Int, { nullable: true })
+  // variationId: number;
+
+  // @Field(() => Int, { nullable: true })
+  // optionId: number;
 }
 
 @InputType()
@@ -20,11 +35,8 @@ export class AddOptionToProduct {
   @Field(() => Int)
   productId: number;
 
-  @Field(() => Int)
-  variationId: number;
-
-  @Field(() => Int)
-  optionId: number;
+  @Field(() => [OptionsWithVaritions])
+  optionsWithVariations: OptionsWithVaritions[];
 }
 
 @InputType()
