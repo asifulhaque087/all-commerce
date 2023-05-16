@@ -198,7 +198,7 @@ export class Combination {
 
   @OneToMany((type) => CombinationOption, (cmbp) => cmbp.combination)
   @Field((type) => [CombinationOption])
-  cmbs: ProductColor[];
+  cmbs: CombinationOption[];
 }
 
 // combinaiton option

@@ -147,6 +147,9 @@ export class ProductsService {
       .leftJoinAndSelect('pvo.variation', 'vari')
       .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
       .leftJoinAndSelect('vpvo.option', 'vop')
+      .leftJoinAndSelect('product.combinations', 'combination')
+      .leftJoinAndSelect('combination.cmbs', 'cmbopt')
+      .leftJoinAndSelect('cmbopt.option', 'acmbopt')
       .getMany();
 
     return products;
@@ -333,7 +336,8 @@ export class ProductsService {
 
   // combinations
   async createCombination(createCombinationInput: CreateCombinationInput) {
-    const { productId, color, img, stock, price } = createCombinationInput;
+    const { productId, color, img, stock, price, options } =
+      createCombinationInput;
 
     const combination = await this.combinationModel.create({
       color,
@@ -346,7 +350,18 @@ export class ProductsService {
 
     combination.product = product;
 
-    return this.combinationModel.save(combination);
+    await this.combinationModel.save(combination);
+
+    // option gular jonno loop chalate hobe
+    for (let i = 0; i < options.length; i++) {
+      const option = await this.findOneOption(options[i]);
+      const cmbo = await this.cmboModel.create({
+        combination,
+        option,
+      });
+      await this.cmboModel.save(cmbo);
+    }
+    return combination;
   }
 
   findAllCombinationsByProduct() {

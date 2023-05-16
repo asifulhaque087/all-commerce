@@ -101,6 +101,6 @@ export class CreateCombinationInput {
   @Field(() => Int)
   price: number;
 
-  @Field(() => [String])
-  variations: string[];
+  @Field(() => [Int])
+  options: number[];
 }
