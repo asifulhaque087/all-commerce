@@ -10,8 +10,12 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ProductsModule } from './products/products.module';
 import {
+  Color,
+  Combination,
+  CombinationOption,
   Option,
   Product,
+  ProductColor,
   ProductVariationOption,
   Variation,
 } from './products/entities/product.entity';
@@ -34,7 +38,17 @@ import {
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
       // entities: [join(__dirname, '/../**/**.entity{.ts,.js}')],
 
-      entities: [Category, Product, Variation, Option, ProductVariationOption],
+      entities: [
+        Category,
+        Product,
+        Variation,
+        Option,
+        ProductVariationOption,
+        Color,
+        ProductColor,
+        Combination,
+        CombinationOption,
+      ],
 
       synchronize: true,
     }),

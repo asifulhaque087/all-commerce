@@ -1,19 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import {
+  AddColorToProduct,
   AddOptionToProduct,
+  CreateColorInput,
+  CreateCombinationInput,
   CreateOptionInput,
   CreateProductInput,
   CreateVariationInput,
 } from './dto/create-product.input';
 import {
+  UpdateColorInput,
+  UpdateCombinationInput,
   UpdateOptionInput,
   UpdateProductInput,
   UpdateVariationInput,
 } from './dto/update-product.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  Color,
+  Combination,
+  CombinationOption,
   Option,
   Product,
+  ProductColor,
   ProductVariationOption,
   Variation,
 } from './entities/product.entity';
@@ -27,11 +36,18 @@ export class ProductsService {
     @InjectRepository(Option) private optionModel: Repository<Option>,
     @InjectRepository(ProductVariationOption)
     private pvoModel: Repository<ProductVariationOption>,
+    @InjectRepository(Color) private colorModel: Repository<Color>,
+    @InjectRepository(ProductColor) private pcModel: Repository<ProductColor>,
+    @InjectRepository(Combination)
+    private combinationModel: Repository<Combination>,
+    @InjectRepository(CombinationOption)
+    private cmboModel: Repository<CombinationOption>,
   ) {}
 
   // products
   async create(createProductInput: CreateProductInput) {
-    const { name, variation, option } = createProductInput;
+    const { name, variationId, optionId, colorsWithImages } =
+      createProductInput;
 
     const product = await this.productModel.create({
       name,
@@ -39,24 +55,23 @@ export class ProductsService {
 
     await this.productModel.save(product);
 
-    const nvariation = await this.findOneVariation(variation);
-    const noption = await this.findOneOption(option);
+    const variation = await this.findOneVariation(variationId);
+    const option = await this.findOneOption(optionId);
 
     const pvo = await this.pvoModel.create({
       product,
-      variation: nvariation,
-      option: noption,
+      variation,
+      option,
     });
 
     await this.pvoModel.save(pvo);
 
+    for (let i = 0; i < colorsWithImages.length; i++) {
+      const { colorId, img } = colorsWithImages[i];
+      await this.addColorToProductUtil(product, colorId, img);
+    }
+
     return product;
-
-    // product.variations = [nvariation];
-    // product.options = [noption];
-
-    // await this.productModel.save(product);
-    // return product;
   }
 
   async addOptionToProduct(addOptionToProduct: AddOptionToProduct) {
@@ -99,8 +114,23 @@ export class ProductsService {
     //   .leftJoinAndSelect('vari.options', 'option', 'option.id == product.id')
     //   .getMany();
 
+    // const products = this.productModel
+    //   .createQueryBuilder('product')
+    //   .leftJoinAndSelect('product.pvos', 'pvo')
+    //   .leftJoinAndSelect('pvo.variation', 'vari')
+    //   .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
+    //   .leftJoinAndSelect('vpvo.option', 'vop')
+    //   .getMany();
+
     const products = this.productModel
       .createQueryBuilder('product')
+      .leftJoinAndSelect('product.colors', 'pcolor')
+      .leftJoinAndSelect('pcolor.color', 'imgcolor')
+      .leftJoinAndSelect(
+        'imgcolor.img',
+        'aimgcolor',
+        'aimgcolor.productId == product.id',
+      )
       .leftJoinAndSelect('product.pvos', 'pvo')
       .leftJoinAndSelect('pvo.variation', 'vari')
       .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
@@ -223,5 +253,111 @@ export class ProductsService {
     const optionCopy = Object.assign({}, option);
     await this.optionModel.remove(option);
     return optionCopy;
+  }
+
+  // colors
+  async createColor(createColorInput: CreateColorInput) {
+    const { name } = createColorInput;
+
+    // const option = new this.optionModel();
+    const color = await this.colorModel.create({
+      name: name,
+    });
+
+    return this.colorModel.save(color);
+  }
+
+  async addColorToProduct(addColorToProduct: AddColorToProduct) {
+    // destructure dto
+    const { productId, colorsWithImages } = addColorToProduct;
+
+    // finding product object
+    const product = await this.findOne(productId);
+
+    for (let i = 0; i < colorsWithImages.length; i++) {
+      const { colorId, img } = colorsWithImages[i];
+      await this.addColorToProductUtil(product, colorId, img);
+    }
+
+    return product;
+  }
+
+  async addColorToProductUtil(product: Product, colorId: number, img: string) {
+    // finding coresponding object
+    const color = await this.findOneColor(colorId);
+
+    // saving into product-variation-option table
+    const pc = await this.pcModel.create({
+      product,
+      color,
+      img,
+    });
+
+    await this.pcModel.save(pc);
+
+    return pc;
+  }
+
+  findAllColors() {
+    return this.colorModel.find();
+  }
+
+  findOneColor(id: number) {
+    return this.colorModel.findOneBy({ id });
+  }
+
+  async updateColor(id: number, updateColorInput: UpdateColorInput) {
+    const color = await this.findOneColor(id);
+    Object.assign(color, updateColorInput);
+    return this.colorModel.save(color);
+  }
+
+  async removeColor(id: number) {
+    const color = await this.findOneColor(id);
+    const colorCopy = Object.assign({}, color);
+    await this.colorModel.remove(color);
+    return colorCopy;
+  }
+
+  // combinations
+  async createCombination(createCombinationInput: CreateCombinationInput) {
+    const { productId, color, img, stock, price } = createCombinationInput;
+
+    const combination = await this.combinationModel.create({
+      color,
+      img,
+      stock,
+      price,
+    });
+
+    const product = await this.findOne(productId);
+
+    combination.product = product;
+
+    return this.combinationModel.save(combination);
+  }
+
+  findAllCombinationsByProduct() {
+    return this.colorModel.find();
+  }
+
+  findOneCombination(id: number) {
+    return this.combinationModel.findOneBy({ id });
+  }
+
+  async updateCombination(
+    id: number,
+    updateCombinationInput: UpdateCombinationInput,
+  ) {
+    const combination = await this.findOneCombination(id);
+    Object.assign(combination, updateCombinationInput);
+    return this.combinationModel.save(combination);
+  }
+
+  async removeCombination(id: number) {
+    const combination = await this.findOneCombination(id);
+    const combinationCopy = Object.assign({}, combination);
+    await this.combinationModel.remove(combination);
+    return combinationCopy;
   }
 }

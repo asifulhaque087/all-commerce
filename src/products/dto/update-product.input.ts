@@ -1,4 +1,6 @@
 import {
+  CreateColorInput,
+  CreateCombinationInput,
   CreateOptionInput,
   CreateProductInput,
   CreateVariationInput,
@@ -39,4 +41,33 @@ export class UpdateOptionInput extends PartialType(CreateOptionInput) {
 
   @Field(() => Int, { nullable: true })
   variation: number;
+}
+
+@InputType()
+export class UpdateColorInput extends PartialType(CreateColorInput) {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => String, { nullable: true })
+  name: string;
+}
+
+@InputType()
+export class UpdateCombinationInput extends PartialType(
+  CreateCombinationInput,
+) {
+  @Field(() => Int)
+  id: number;
+
+  @Field(() => String, { nullable: true })
+  color: string;
+
+  @Field(() => String, { nullable: true })
+  img: string;
+
+  @Field(() => Int, { nullable: true })
+  stock: number;
+
+  @Field(() => Int, { nullable: true })
+  price: number;
 }

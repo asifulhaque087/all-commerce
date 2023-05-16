@@ -5,11 +5,14 @@ export class CreateProductInput {
   @Field(() => String, { description: 'name for product' })
   name: string;
 
-  @Field(() => Int, { nullable: true })
-  variation: number;
+  @Field(() => [ColorsWithImgs])
+  colorsWithImages: ColorsWithImgs[];
 
   @Field(() => Int, { nullable: true })
-  option: number;
+  variationId: number;
+
+  @Field(() => Int, { nullable: true })
+  optionId: number;
 }
 
 @InputType()
@@ -37,4 +40,55 @@ export class CreateOptionInput {
 
   @Field(() => Int, { nullable: true })
   variation: number;
+}
+
+@InputType()
+export class CreateColorInput {
+  @Field(() => String, { description: 'name for color' })
+  name: string;
+}
+
+@InputType()
+class ColorsWithImgs {
+  @Field(() => Int)
+  colorId: number;
+
+  @Field(() => String)
+  img: string;
+}
+
+@InputType()
+export class AddColorToProduct {
+  @Field(() => Int)
+  productId: number;
+
+  @Field(() => [ColorsWithImgs])
+  colorsWithImages: ColorsWithImgs[];
+
+  // @Field(() => [Int])
+  // colorId: number[];
+
+  // @Field(() => [String])
+  // img: string[];
+}
+
+@InputType()
+export class CreateCombinationInput {
+  @Field(() => Int)
+  productId: number;
+
+  @Field(() => String)
+  color: string;
+
+  @Field(() => String)
+  img: string;
+
+  @Field(() => Int)
+  stock: number;
+
+  @Field(() => Int)
+  price: number;
+
+  @Field(() => [String])
+  variations: string[];
 }
