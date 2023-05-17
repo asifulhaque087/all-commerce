@@ -19,6 +19,7 @@ import {
   ProductVariationOption,
   Variation,
 } from './products/entities/product.entity';
+import { ColorsModule } from './colors/colors.module';
 
 @Module({
   imports: [
@@ -56,6 +57,8 @@ import {
     CategoriesModule,
 
     ProductsModule,
+
+    ColorsModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
