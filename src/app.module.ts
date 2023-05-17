@@ -20,6 +20,7 @@ import {
   Variation,
 } from './products/entities/product.entity';
 import { ColorsModule } from './colors/colors.module';
+import { AttributesModule } from './attributes/attributes.module';
 
 @Module({
   imports: [
@@ -59,6 +60,8 @@ import { ColorsModule } from './colors/colors.module';
     ProductsModule,
 
     ColorsModule,
+
+    AttributesModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
