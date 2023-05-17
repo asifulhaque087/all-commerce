@@ -21,6 +21,7 @@ import {
 } from './products/entities/product.entity';
 import { ColorsModule } from './colors/colors.module';
 import { AttributesModule } from './attributes/attributes.module';
+import { CombinationsModule } from './combinations/combinations.module';
 
 @Module({
   imports: [
@@ -62,6 +63,8 @@ import { AttributesModule } from './attributes/attributes.module';
     ColorsModule,
 
     AttributesModule,
+
+    CombinationsModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
