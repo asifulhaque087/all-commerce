@@ -1,53 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import {
   AddColorToProduct,
-  AddOptionToProduct,
-  CreateColorInput,
-  CreateCombinationInput,
-  CreateOptionInput,
+  AddValueToProduct,
   CreateProductInput,
-  CreateVariationInput,
 } from './dto/create-product.input';
-import {
-  UpdateColorInput,
-  UpdateCombinationInput,
-  UpdateOptionInput,
-  UpdateProductInput,
-  UpdateVariationInput,
-} from './dto/update-product.input';
+import { UpdateProductInput } from './dto/update-product.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  Color,
-  Combination,
-  CombinationOption,
-  Option,
   Product,
+  ProductAttributeValue,
   ProductColor,
-  ProductVariationOption,
-  Variation,
 } from './entities/product.entity';
 import { Repository } from 'typeorm';
+import { AttributesService } from 'src/attributes/attributes.service';
+import { AttributeValuesService } from 'src/attribute-values/attribute-values.service';
+import { ColorsService } from 'src/colors/colors.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private productModel: Repository<Product>,
-    @InjectRepository(Variation) private variationModel: Repository<Variation>,
-    @InjectRepository(Option) private optionModel: Repository<Option>,
-    @InjectRepository(ProductVariationOption)
-    private pvoModel: Repository<ProductVariationOption>,
-    @InjectRepository(Color) private colorModel: Repository<Color>,
     @InjectRepository(ProductColor) private pcModel: Repository<ProductColor>,
-    @InjectRepository(Combination)
-    private combinationModel: Repository<Combination>,
-    @InjectRepository(CombinationOption)
-    private cmboModel: Repository<CombinationOption>,
+    @InjectRepository(ProductAttributeValue)
+    private pattvalModel: Repository<ProductAttributeValue>,
+    // services
+    private AttributesService: AttributesService,
+    private AttributeValuesService: AttributeValuesService,
+    private ColorsService: ColorsService,
   ) {}
 
   // products
   async create(createProductInput: CreateProductInput) {
-    const { name, colorsWithImages, optionsWithVariations } =
-      createProductInput;
+    const { name, colorsWithImages, valuesWithAttributes } = createProductInput;
 
     const product = await this.productModel.create({
       name,
@@ -55,11 +39,17 @@ export class ProductsService {
 
     await this.productModel.save(product);
 
-    // adding options for product
-    for (let i = 0; i < optionsWithVariations.length; i++) {
-      const { optionId, variationId } = optionsWithVariations[i];
-      await this.addOptionToProductUtil(product, variationId, optionId);
+    // adding attribute values for product
+    for (let i = 0; i < valuesWithAttributes.length; i++) {
+      const { attributeId, valueId } = valuesWithAttributes[i];
+      await this.addValueToProductUtil(product, attributeId, valueId);
     }
+    // try this after all
+
+    // await this.addValueToProduct({
+    //   valuesWithAttributes,
+    //   productId: product.id,
+    // });
 
     // adding colors for product
     for (let i = 0; i < colorsWithImages.length; i++) {
@@ -70,48 +60,49 @@ export class ProductsService {
     return product;
   }
 
-  async addOptionToProduct(addOptionToProduct: AddOptionToProduct) {
+  async addValueToProduct(addValueToProduct: AddValueToProduct) {
     // destructure dto
-    const { productId, optionsWithVariations } = addOptionToProduct;
+    const { productId, valuesWithAttributes } = addValueToProduct;
 
     // finding product object
     const product = await this.findOne(productId);
 
     // adding options for product
-    for (let i = 0; i < optionsWithVariations.length; i++) {
-      const { optionId, variationId } = optionsWithVariations[i];
-      await this.addOptionToProductUtil(product, variationId, optionId);
+    for (let i = 0; i < valuesWithAttributes.length; i++) {
+      const { attributeId, valueId } = valuesWithAttributes[i];
+      await this.addValueToProductUtil(product, attributeId, valueId);
     }
 
     return product;
   }
 
-  async addOptionToProductUtil(
+  async addValueToProductUtil(
     product: Product,
-    variationId: number,
-    optionId: number,
+    attributeId: number,
+    valueId: number,
   ) {
     // finding coresponding object
-    const variation = await this.findOneVariation(variationId);
-    const option = await this.findOneOption(optionId);
+    const attribute = await this.AttributesService.findOne(attributeId);
+
+    const value = await this.AttributeValuesService.findOne(valueId);
 
     // saving into product-variation-option table
-    const pvo = await this.pvoModel.create({
+    const pattval = await this.pattvalModel.create({
       product,
-      variation,
-      option,
+      attribute,
+      value,
     });
 
-    await this.pvoModel.save(pvo);
+    await this.pattvalModel.save(pattval);
 
-    return pvo;
+    return pattval;
   }
 
-  async removeOptionFromProduct(id: number) {
-    const pvo = await this.pvoModel.findBy({ id });
-    const pvoCopy = Object.assign({}, pvo);
-    await this.pvoModel.remove(pvo);
-    return pvoCopy;
+  async removeValueFromProduct(id: number) {
+    const pattval = await this.pattvalModel.findBy({ id });
+    const pattvalCopy = Object.assign({}, pattval);
+    await this.pattvalModel.remove(pattval);
+    return pattvalCopy;
   }
 
   async findAll() {
@@ -119,66 +110,32 @@ export class ProductsService {
     //   relations: ['pvos.variation.options'],
     // });
 
-    // const products = this.productModel
-    //   .createQueryBuilder('product')
-    //   .leftJoinAndSelect('product.pvos', 'pvo')
-    //   .leftJoinAndSelect('pvo.variation', 'vari')
-    //   .leftJoinAndSelect('vari.options', 'option', 'option.id == product.id')
-    //   .getMany();
-
-    // const products = this.productModel
-    //   .createQueryBuilder('product')
-    //   .leftJoinAndSelect('product.pvos', 'pvo')
-    //   .leftJoinAndSelect('pvo.variation', 'vari')
-    //   .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
-    //   .leftJoinAndSelect('vpvo.option', 'vop')
-    //   .getMany();
-
     const products = this.productModel
       .createQueryBuilder('product')
-      .leftJoinAndSelect('product.colors', 'pcolor')
-      .leftJoinAndSelect('pcolor.color', 'imgcolor')
+      .leftJoinAndSelect('product.colors', 'pcFromProduct')
+      .leftJoinAndSelect('pcFromProduct.color', 'colorFromPc')
       .leftJoinAndSelect(
-        'imgcolor.img',
-        'aimgcolor',
-        'aimgcolor.productId == product.id',
+        'colorFromPc.img',
+        'pcFromColor',
+        'pcFromColor.productId == product.id',
       )
-      .leftJoinAndSelect('product.pvos', 'pvo')
-      .leftJoinAndSelect('pvo.variation', 'vari')
-      .leftJoinAndSelect('vari.pvos', 'vpvo', 'vpvo.productId == product.id')
-      .leftJoinAndSelect('vpvo.option', 'vop')
-      .leftJoinAndSelect('product.combinations', 'combination')
-      .leftJoinAndSelect('combination.cmbs', 'cmbopt')
-      .leftJoinAndSelect('cmbopt.option', 'acmbopt')
+      .leftJoinAndSelect('product.pattvals', 'pattvalFromProduct')
+      .leftJoinAndSelect('pattvalFromProduct.attribute', 'attributeFromPattval')
+      .leftJoinAndSelect(
+        'attributeFromPattval.pattvals',
+        'pattvalFromAttribute',
+        'pattvalFromAttribute.productId == product.id',
+      )
+      .leftJoinAndSelect(
+        'pattvalFromAttribute.value',
+        'attributeValueFromPattval',
+      )
+      .leftJoinAndSelect('product.variations', 'variationFromProduct')
+      .leftJoinAndSelect('variationFromProduct.varvals', 'varvalFromVariation')
+      .leftJoinAndSelect('varvalFromVariation.value', 'valueFromVarval')
       .getMany();
 
     return products;
-
-    // relations: ['variations.options', 'options'],
-
-    // return this.productModel.find({
-    //   relations: {
-    //     variations: {
-    //       options: true,
-    //     },
-    //   },
-
-    //   where: {
-    //     variations: {},
-    //   },
-    // });
-    // const products = await this.productModel
-    //   .createQueryBuilder()
-    //   .select('*')
-    //   .getRawMany();
-
-    // const products = this.productModel
-    //   .createQueryBuilder('product')
-    //   .leftJoinAndSelect('product.variations', 'variation')
-    //   .leftJoinAndSelect('product.options', 'poption')
-    //   .getMany();
-
-    // return products;
   }
 
   findOne(id: number) {
@@ -198,89 +155,7 @@ export class ProductsService {
     return productCopy;
   }
 
-  // variations
-  async createVariation(createVariationInput: CreateVariationInput) {
-    const { name } = createVariationInput;
-    const variation = await this.variationModel.create({
-      name,
-    });
-    return this.variationModel.save(variation);
-  }
-
-  findAllVariations() {
-    return this.variationModel.find({
-      relations: ['options'],
-    });
-  }
-
-  findOneVariation(id: number) {
-    return this.variationModel.findOneBy({ id });
-  }
-
-  async updateVariation(
-    id: number,
-    updateVariationInput: UpdateVariationInput,
-  ) {
-    const variation = await this.findOneVariation(id);
-    Object.assign(variation, updateVariationInput);
-    return this.variationModel.save(variation);
-  }
-
-  async removeVariation(id: number) {
-    const variation = await this.findOneVariation(id);
-    const variationCopy = Object.assign({}, variation);
-    await this.variationModel.remove(variation);
-    return variationCopy;
-  }
-
-  // options
-  async createOption(createOptionInput: CreateOptionInput) {
-    const { name, variation } = createOptionInput;
-
-    // const option = new this.optionModel();
-    const option = await this.optionModel.create({
-      name: name,
-    });
-
-    const ivariation = await this.findOneVariation(variation);
-    option.variation = ivariation;
-    return this.optionModel.save(option);
-  }
-
-  findAllOptions() {
-    return this.optionModel.find({
-      relations: ['variation'],
-    });
-  }
-
-  findOneOption(id: number) {
-    return this.optionModel.findOneBy({ id });
-  }
-
-  async updateOption(id: number, updateOptionInput: UpdateOptionInput) {
-    const option = await this.findOneOption(id);
-    Object.assign(option, updateOptionInput);
-    return this.variationModel.save(option);
-  }
-
-  async removeOption(id: number) {
-    const option = await this.findOneOption(id);
-    const optionCopy = Object.assign({}, option);
-    await this.optionModel.remove(option);
-    return optionCopy;
-  }
-
   // colors
-  async createColor(createColorInput: CreateColorInput) {
-    const { name } = createColorInput;
-
-    // const option = new this.optionModel();
-    const color = await this.colorModel.create({
-      name: name,
-    });
-
-    return this.colorModel.save(color);
-  }
 
   async addColorToProduct(addColorToProduct: AddColorToProduct) {
     // destructure dto
@@ -299,7 +174,7 @@ export class ProductsService {
 
   async addColorToProductUtil(product: Product, colorId: number, img: string) {
     // finding coresponding object
-    const color = await this.findOneColor(colorId);
+    const color = await this.ColorsService.findOne(colorId);
 
     // saving into product-variation-option table
     const pc = await this.pcModel.create({
@@ -311,80 +186,5 @@ export class ProductsService {
     await this.pcModel.save(pc);
 
     return pc;
-  }
-
-  findAllColors() {
-    return this.colorModel.find();
-  }
-
-  findOneColor(id: number) {
-    return this.colorModel.findOneBy({ id });
-  }
-
-  async updateColor(id: number, updateColorInput: UpdateColorInput) {
-    const color = await this.findOneColor(id);
-    Object.assign(color, updateColorInput);
-    return this.colorModel.save(color);
-  }
-
-  async removeColor(id: number) {
-    const color = await this.findOneColor(id);
-    const colorCopy = Object.assign({}, color);
-    await this.colorModel.remove(color);
-    return colorCopy;
-  }
-
-  // combinations
-  async createCombination(createCombinationInput: CreateCombinationInput) {
-    const { productId, color, img, stock, price, options } =
-      createCombinationInput;
-
-    const combination = await this.combinationModel.create({
-      color,
-      img,
-      stock,
-      price,
-    });
-
-    const product = await this.findOne(productId);
-
-    combination.product = product;
-
-    await this.combinationModel.save(combination);
-
-    // option gular jonno loop chalate hobe
-    for (let i = 0; i < options.length; i++) {
-      const option = await this.findOneOption(options[i]);
-      const cmbo = await this.cmboModel.create({
-        combination,
-        option,
-      });
-      await this.cmboModel.save(cmbo);
-    }
-    return combination;
-  }
-
-  findAllCombinationsByProduct() {
-    return this.colorModel.find();
-  }
-
-  findOneCombination(id: number) {
-    return this.combinationModel.findOneBy({ id });
-  }
-
-  async updateCombination(
-    id: number,
-    updateCombinationInput: UpdateCombinationInput,
-  ) {
-    const combination = await this.findOneCombination(id);
-    Object.assign(combination, updateCombinationInput);
-    return this.combinationModel.save(combination);
-  }
-
-  async removeCombination(id: number) {
-    const combination = await this.findOneCombination(id);
-    const combinationCopy = Object.assign({}, combination);
-    await this.combinationModel.remove(combination);
-    return combinationCopy;
   }
 }
