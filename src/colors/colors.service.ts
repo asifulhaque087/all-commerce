@@ -1,26 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import { CreateColorInput } from './dto/create-color.input';
 import { UpdateColorInput } from './dto/update-color.input';
+import { Color } from './entities/color.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ColorsService {
-  create(createColorInput: CreateColorInput) {
-    return 'This action adds a new color';
+  constructor(@InjectRepository(Color) private colorModel: Repository<Color>) {}
+
+  async create(createColorInput: CreateColorInput) {
+    const { name } = createColorInput;
+
+    const color = await this.colorModel.create({
+      name: name,
+    });
+
+    return this.colorModel.save(color);
   }
 
   findAll() {
-    return `This action returns all colors`;
+    return this.colorModel.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} color`;
+    return this.colorModel.findOneBy({ id });
   }
 
-  update(id: number, updateColorInput: UpdateColorInput) {
-    return `This action updates a #${id} color`;
+  async update(id: number, updateColorInput: UpdateColorInput) {
+    const color = await this.findOne(id);
+    Object.assign(color, updateColorInput);
+    return this.colorModel.save(color);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} color`;
+  async remove(id: number) {
+    const color = await this.findOne(id);
+    const colorCopy = Object.assign({}, color);
+    await this.colorModel.remove(color);
+    return colorCopy;
   }
 }
