@@ -1,44 +1,24 @@
 import { Module } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import {
-  ColorsResolver,
-  CombinationsResolver,
-  OptionsResolver,
-  ProductsResolver,
-  VariationsResolver,
-} from './products.resolver';
+import { ProductsResolver } from './products.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
-  Color,
-  Combination,
-  CombinationOption,
-  Option,
   Product,
+  ProductAttributeValue,
   ProductColor,
-  ProductVariationOption,
-  Variation,
 } from './entities/product.entity';
+import { AttributesModule } from 'src/attributes/attributes.module';
+import { AttributeValuesModule } from 'src/attribute-values/attribute-values.module';
+import { ColorsModule } from 'src/colors/colors.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Product,
-      Variation,
-      Option,
-      ProductVariationOption,
-      Color,
-      ProductColor,
-      Combination,
-      CombinationOption,
-    ]),
+    TypeOrmModule.forFeature([Product, ProductColor, ProductAttributeValue]),
+    AttributesModule,
+    AttributeValuesModule,
+    ColorsModule,
   ],
-  providers: [
-    ProductsResolver,
-    VariationsResolver,
-    OptionsResolver,
-    ColorsResolver,
-    CombinationsResolver,
-    ProductsService,
-  ],
+  providers: [ProductsResolver, ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}
