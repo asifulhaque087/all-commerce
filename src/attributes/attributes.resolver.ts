@@ -9,7 +9,9 @@ export class AttributesResolver {
   constructor(private readonly attributesService: AttributesService) {}
 
   @Mutation(() => Attribute)
-  createAttribute(@Args('createAttributeInput') createAttributeInput: CreateAttributeInput) {
+  createAttribute(
+    @Args('createAttributeInput') createAttributeInput: CreateAttributeInput,
+  ) {
     return this.attributesService.create(createAttributeInput);
   }
 
@@ -24,8 +26,13 @@ export class AttributesResolver {
   }
 
   @Mutation(() => Attribute)
-  updateAttribute(@Args('updateAttributeInput') updateAttributeInput: UpdateAttributeInput) {
-    return this.attributesService.update(updateAttributeInput.id, updateAttributeInput);
+  updateAttribute(
+    @Args('updateAttributeInput') updateAttributeInput: UpdateAttributeInput,
+  ) {
+    return this.attributesService.update(
+      updateAttributeInput.id,
+      updateAttributeInput,
+    );
   }
 
   @Mutation(() => Attribute)
