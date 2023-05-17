@@ -1,9 +1,11 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { AttributeValue } from 'src/attribute-values/entities/attribute-value.entity';
+import { Attribute } from 'src/attributes/entities/attribute.entity';
+import { Color } from 'src/colors/entities/color.entity';
+import { Variation } from 'src/variations/entities/variation.entity';
 import {
   Column,
   Entity,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -24,127 +26,34 @@ export class Product {
   @Field((type) => [ProductColor])
   colors: ProductColor[];
 
-  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.product)
-  @Field((type) => [ProductVariationOption])
-  pvos: ProductVariationOption[];
+  @OneToMany((type) => ProductAttributeValue, (pattval) => pattval.product)
+  @Field((type) => [ProductAttributeValue])
+  pattvals: ProductAttributeValue[];
 
-  @OneToMany((type) => Combination, (cmb) => cmb.product)
-  @Field((type) => [Combination])
-  combinations: Combination[];
-
-  // @ManyToMany((type) => Variation, (variation) => variation.products)
-  // @JoinTable({
-  //   name: 'product_variation_option',
-  // })
-  // @Field((type) => [Variation])
-  // variations: Variation[];
-
-  // @ManyToMany((type) => Option, (option) => option.products)
-  // @JoinTable({
-  //   name: 'product_variation_option',
-  // })
-  // @Field((type) => [Option])
-  // options: Option[];
+  @OneToMany((type) => Variation, (cmb) => cmb.product)
+  @Field((type) => [Variation])
+  variations: Variation[];
 }
 
-// variations
+// ProductAttributeValue
 @ObjectType()
 @Entity()
-export class Variation {
+export class ProductAttributeValue {
   @PrimaryGeneratedColumn()
   @Field((type) => Int)
   id: number;
 
-  @Column()
-  @Field()
-  name: string;
-
-  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.variation)
-  @Field((type) => [ProductVariationOption])
-  pvos: ProductVariationOption[];
-
-  // @ManyToMany((type) => Product, (product) => product.variations)
-  // @Field((type) => [Product])
-  // products: Product[];
-
-  // @ManyToMany((type) => Option, (option) => option.variations)
-  // @Field((type) => [Option])
-  // options: Option[];
-
-  @OneToMany((type) => Option, (option) => option.variation)
-  @Field((type) => [Option])
-  options: Option[];
-}
-
-// options
-@ObjectType()
-@Entity()
-export class Option {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
-
-  @Column()
-  @Field()
-  name: string;
-
-  @OneToMany((type) => ProductVariationOption, (pvo) => pvo.option)
-  @Field((type) => [ProductVariationOption])
-  pvos: ProductVariationOption[];
-
-  // @ManyToMany((type) => Product, (product) => product.options)
-  // @Field((type) => [Product])
-  // products: Product[];
-
-  // @ManyToMany((type) => Variation, (variation) => variation.options)
-  // @Field((type) => [Variation])
-  // variations: Variation[];
-
-  @ManyToOne((type) => Variation, (variation) => variation.options)
-  @Field((type) => Variation)
-  variation: Variation;
-
-  @OneToMany((type) => CombinationOption, (cmbp) => cmbp.combination)
-  @Field((type) => [CombinationOption])
-  cmbs: ProductColor[];
-}
-
-// productvariationoption
-@ObjectType()
-@Entity()
-export class ProductVariationOption {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
-
-  @ManyToOne(() => Product, (product) => product.pvos)
+  @ManyToOne(() => Product, (product) => product.pattvals)
   @Field((type) => Product)
   product: Product;
 
-  @ManyToOne(() => Variation, (vari) => vari.pvos)
-  @Field((type) => Variation)
-  variation: Variation;
+  @ManyToOne(() => Attribute, (att) => att.pattvals)
+  @Field((type) => Attribute)
+  attribute: Attribute;
 
-  @ManyToOne(() => Option, (op) => op.pvos)
-  @Field((type) => Option)
-  option: Option;
-}
-
-// colors
-@ObjectType()
-@Entity()
-export class Color {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
-
-  @Column()
-  @Field()
-  name: string;
-
-  @OneToMany((type) => ProductColor, (pc) => pc.color)
-  @Field((type) => [ProductColor])
-  img: ProductColor[];
+  @ManyToOne(() => AttributeValue, (attval) => attval.pattvals)
+  @Field((type) => AttributeValue)
+  value: AttributeValue;
 }
 
 // ProductColor
@@ -166,56 +75,6 @@ export class ProductColor {
   @ManyToOne(() => Color, (col) => col.img)
   @Field((type) => Color)
   color: Color;
-}
-
-// Combination table
-@ObjectType()
-@Entity()
-export class Combination {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
-
-  @Column()
-  @Field()
-  color: string;
-
-  @Column()
-  @Field()
-  img: string;
-
-  @Column()
-  @Field((type) => Int)
-  stock: number;
-
-  @Column()
-  @Field((type) => Int)
-  price: number;
-
-  @ManyToOne(() => Product, (product) => product.combinations)
-  @Field((type) => Product)
-  product: Product;
-
-  @OneToMany((type) => CombinationOption, (cmbp) => cmbp.combination)
-  @Field((type) => [CombinationOption])
-  cmbs: CombinationOption[];
-}
-
-// combinaiton option
-@ObjectType()
-@Entity()
-export class CombinationOption {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number;
-
-  @ManyToOne(() => Combination, (cmb) => cmb.cmbs)
-  @Field((type) => Combination)
-  combination: Combination;
-
-  @ManyToOne(() => Option, (cmb) => cmb.cmbs)
-  @Field((type) => Option)
-  option: Option;
 }
 
 // produts: [
