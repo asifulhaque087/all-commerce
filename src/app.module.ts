@@ -10,20 +10,21 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ProductsModule } from './products/products.module';
 import {
-  Color,
-  Combination,
-  CombinationOption,
-  Option,
   Product,
+  ProductAttributeValue,
   ProductColor,
-  ProductVariationOption,
-  Variation,
 } from './products/entities/product.entity';
 import { ColorsModule } from './colors/colors.module';
 import { AttributesModule } from './attributes/attributes.module';
-import { CombinationsModule } from './combinations/combinations.module';
 import { AttributeValuesModule } from './attribute-values/attribute-values.module';
 import { VariationsModule } from './variations/variations.module';
+import { Attribute } from './attributes/entities/attribute.entity';
+import { AttributeValue } from './attribute-values/entities/attribute-value.entity';
+import { Color } from './colors/entities/color.entity';
+import {
+  Variation,
+  VariationValue,
+} from './variations/entities/variation.entity';
 
 @Module({
   imports: [
@@ -46,30 +47,23 @@ import { VariationsModule } from './variations/variations.module';
       entities: [
         Category,
         Product,
-        Variation,
-        Option,
-        ProductVariationOption,
+        Attribute,
+        AttributeValue,
+        ProductAttributeValue,
         Color,
         ProductColor,
-        Combination,
-        CombinationOption,
+        Variation,
+        VariationValue,
       ],
 
       synchronize: true,
     }),
 
     CategoriesModule,
-
     ProductsModule,
-
     ColorsModule,
-
     AttributesModule,
-
-    CombinationsModule,
-
     AttributeValuesModule,
-
     VariationsModule,
   ],
   controllers: [AppController],
