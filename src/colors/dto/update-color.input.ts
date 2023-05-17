@@ -5,4 +5,7 @@ import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
 export class UpdateColorInput extends PartialType(CreateColorInput) {
   @Field(() => Int)
   id: number;
+
+  @Field(() => String, { nullable: true })
+  name: string;
 }
