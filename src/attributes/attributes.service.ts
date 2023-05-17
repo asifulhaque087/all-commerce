@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAttributeInput } from './dto/create-attribute.input';
 import { UpdateAttributeInput } from './dto/update-attribute.input';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Attribute } from './entities/attribute.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AttributesService {
-  create(createAttributeInput: CreateAttributeInput) {
-    return 'This action adds a new attribute';
+  constructor(
+    @InjectRepository(Attribute) private attributeModel: Repository<Attribute>,
+  ) {}
+
+  async create(createAttributeInput: CreateAttributeInput) {
+    const { name } = createAttributeInput;
+    const attribute = await this.attributeModel.create({
+      name,
+    });
+    return this.attributeModel.save(attribute);
   }
 
   findAll() {
-    return `This action returns all attributes`;
+    return this.attributeModel.find({
+      relations: ['values'],
+    });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} attribute`;
+    return this.attributeModel.findOneBy({ id });
   }
 
-  update(id: number, updateAttributeInput: UpdateAttributeInput) {
-    return `This action updates a #${id} attribute`;
+  async update(id: number, updateAttributeInput: UpdateAttributeInput) {
+    const attribute = await this.findOne(id);
+    Object.assign(attribute, updateAttributeInput);
+    return this.attributeModel.save(attribute);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} attribute`;
+  async remove(id: number) {
+    const attribute = await this.findOne(id);
+    const attributeCopy = Object.assign({}, attribute);
+    await this.attributeModel.remove(attribute);
+    return attributeCopy;
   }
 }
