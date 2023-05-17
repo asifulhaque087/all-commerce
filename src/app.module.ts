@@ -23,6 +23,7 @@ import { ColorsModule } from './colors/colors.module';
 import { AttributesModule } from './attributes/attributes.module';
 import { CombinationsModule } from './combinations/combinations.module';
 import { AttributeValuesModule } from './attribute-values/attribute-values.module';
+import { VariationsModule } from './variations/variations.module';
 
 @Module({
   imports: [
@@ -68,6 +69,8 @@ import { AttributeValuesModule } from './attribute-values/attribute-values.modul
     CombinationsModule,
 
     AttributeValuesModule,
+
+    VariationsModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
