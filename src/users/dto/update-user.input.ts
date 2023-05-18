@@ -18,9 +18,6 @@ export class UpdateUserInput extends PartialType(CreateUserInput) {
   })
   phone: string;
 
-  @Field(() => String, { nullable: true, description: 'password for user' })
-  password: string;
-
   @Field(() => Int, {
     nullable: true,
     description: 'user roleId (optional)',

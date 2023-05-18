@@ -23,3 +23,14 @@ export class CreateUserInput {
   })
   roleId: number;
 }
+
+@InputType()
+export class AddRoleToUserInput {
+  @Field(() => Int)
+  userId: number;
+
+  @Field(() => [Int], {
+    description: 'user roleId (optional)',
+  })
+  roleIds: number[];
+}
