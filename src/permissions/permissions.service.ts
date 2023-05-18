@@ -37,7 +37,10 @@ export class PermissionsService {
     return this.permissionModel.save(permission);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} permission`;
+  async remove(id: number) {
+    const permission = await this.findOne(id);
+    const permissionCopy = Object.assign({}, permission);
+    await this.permissionModel.remove(permission);
+    return permissionCopy;
   }
 }
