@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Role } from './entities/role.entity';
 
 @Module({
-
   imports: [TypeOrmModule.forFeature([Role])],
-  providers: [RolesResolver, RolesService]
+  providers: [RolesResolver, RolesService],
+  exports: [RolesResolver],
 })
 export class RolesModule {}
