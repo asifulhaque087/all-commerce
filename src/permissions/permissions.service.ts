@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePermissionInput } from './dto/create-permission.input';
 import { UpdatePermissionInput } from './dto/update-permission.input';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Permission } from './entities/permission.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PermissionsService {
+  constructor(
+    @InjectRepository(Permission)
+    private permissionModel: Repository<Permission>,
+  ) {}
+
   create(createPermissionInput: CreatePermissionInput) {
     return 'This action adds a new permission';
   }
@@ -13,7 +21,7 @@ export class PermissionsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} permission`;
+    return this.permissionModel.findOneBy({ id });
   }
 
   update(id: number, updatePermissionInput: UpdatePermissionInput) {
