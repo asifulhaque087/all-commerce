@@ -27,8 +27,10 @@ export class RolesService {
     return this.roleModel.findOneBy({ id });
   }
 
-  update(id: number, updateRoleInput: UpdateRoleInput) {
-    return `This action updates a #${id} role`;
+  async update(id: number, updateRoleInput: UpdateRoleInput) {
+    const role = await this.findOne(id);
+    Object.assign(role, updateRoleInput);
+    return this.roleModel.save(role);
   }
 
   remove(id: number) {
