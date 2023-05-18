@@ -28,6 +28,9 @@ import {
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { User, UserRole } from './users/entities/user.entity';
+import { Role } from './roles/entities/role.entity';
+import { Permission } from './permissions/entities/permission.entity';
 
 @Module({
   imports: [
@@ -57,6 +60,10 @@ import { PermissionsModule } from './permissions/permissions.module';
         ProductColor,
         Variation,
         VariationValue,
+        User,
+        Role,
+        Permission,
+        UserRole,
       ],
 
       synchronize: true,
