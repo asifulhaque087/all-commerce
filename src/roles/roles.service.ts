@@ -33,7 +33,10 @@ export class RolesService {
     return this.roleModel.save(role);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: number) {
+    const role = await this.findOne(id);
+    const roleCopy = Object.assign({}, role);
+    await this.roleModel.remove(role);
+    return roleCopy;
   }
 }
