@@ -25,6 +25,7 @@ import {
   Variation,
   VariationValue,
 } from './variations/entities/variation.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import {
     AttributesModule,
     AttributeValuesModule,
     VariationsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
