@@ -27,6 +27,7 @@ import {
 } from './variations/entities/variation.entity';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { RolesModule } from './roles/roles.module';
     VariationsModule,
     UsersModule,
     RolesModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
