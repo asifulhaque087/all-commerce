@@ -9,8 +9,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 export class RolesService {
   constructor(@InjectRepository(Role) private roleModel: Repository<Role>) {}
 
-  create(createRoleInput: CreateRoleInput) {
-    return 'This action adds a new role';
+  async create(createRoleInput: CreateRoleInput) {
+    const { name } = createRoleInput;
+
+    const role = this.roleModel.create({
+      name,
+    });
+
+    return this.roleModel.save(role);
   }
 
   findAll() {
