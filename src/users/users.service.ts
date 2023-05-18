@@ -6,11 +6,15 @@ import { User, UserRole } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import { RolesService } from 'src/roles/roles.service';
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userModel: Repository<User>,
     @InjectRepository(UserRole) private urModel: Repository<UserRole>,
+
+    // services
+    private RolesService: RolesService,
   ) {}
 
   async create(createUserInput: CreateUserInput) {
@@ -66,6 +70,35 @@ export class UsersService {
     return userCopy;
   }
   // -- [[ crud end ]] --
+
+  async addRoleToUser(id: number, addRoleToUserInput: AddRoleToUserInput) {
+    // destructure dto
+    const { userId, roleIds } = addRoleToUserInput;
+
+    // finding user
+    const user = await this.findOne(userId);
+
+    for (let i = 0; i < roleIds.length; i++) {
+      await this.addRoleToUserUtil(user, roleIds[i]);
+    }
+
+    return user;
+  }
+
+  async addRoleToUserUtil(user: User, roleId: number) {
+    // finding coresponding instance
+    const role = await this.RolesService.findOne(roleId);
+
+    // saving into product-variation-option table
+    const ur = this.urModel.create({
+      user,
+      role,
+    });
+
+    await this.urModel.save(ur);
+
+    return ur;
+  }
 
   // utils methods
   getSignedJwtToken(user: User) {
