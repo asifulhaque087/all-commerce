@@ -12,8 +12,15 @@ export class PermissionsService {
     private permissionModel: Repository<Permission>,
   ) {}
 
-  create(createPermissionInput: CreatePermissionInput) {
-    return 'This action adds a new permission';
+  async create(createPermissionInput: CreatePermissionInput) {
+    const { action, subject } = createPermissionInput;
+
+    const permission = this.permissionModel.create({
+      action,
+      subject,
+    });
+
+    return this.permissionModel.save(permission);
   }
 
   findAll() {
