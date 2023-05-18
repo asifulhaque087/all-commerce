@@ -71,7 +71,7 @@ export class UsersService {
   }
   // -- [[ crud end ]] --
 
-  async addRoleToUser(id: number, addRoleToUserInput: AddRoleToUserInput) {
+  async addRoleToUser(addRoleToUserInput: AddRoleToUserInput) {
     // destructure dto
     const { userId, roleIds } = addRoleToUserInput;
 
