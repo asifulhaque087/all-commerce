@@ -26,6 +26,7 @@ import {
   VariationValue,
 } from './variations/entities/variation.entity';
 import { UsersModule } from './users/users.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { UsersModule } from './users/users.module';
     AttributeValuesModule,
     VariationsModule,
     UsersModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppResolver, AppService],
