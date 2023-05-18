@@ -31,8 +31,10 @@ export class PermissionsService {
     return this.permissionModel.findOneBy({ id });
   }
 
-  update(id: number, updatePermissionInput: UpdatePermissionInput) {
-    return `This action updates a #${id} permission`;
+  async update(id: number, updatePermissionInput: UpdatePermissionInput) {
+    const permission = await this.findOne(id);
+    Object.assign(permission, updatePermissionInput);
+    return this.permissionModel.save(permission);
   }
 
   remove(id: number) {
