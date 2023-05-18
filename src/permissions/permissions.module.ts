@@ -7,5 +7,6 @@ import { Permission } from './entities/permission.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Permission])],
   providers: [PermissionsResolver, PermissionsService],
+  exports: [PermissionsService],
 })
 export class PermissionsModule {}
