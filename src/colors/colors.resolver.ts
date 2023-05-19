@@ -3,12 +3,18 @@ import { ColorsService } from './colors.service';
 import { Color } from './entities/color.entity';
 import { CreateColorInput } from './dto/create-color.input';
 import { UpdateColorInput } from './dto/update-color.input';
+import { UseGuards } from '@nestjs/common';
+import { CheckPermissions } from 'src/auth/permissions.decorator';
+import { PermissionsGuard } from 'src/auth/permissions.guard';
+import { PermissionAction } from 'src/auth/casl-ability.factory';
 
 @Resolver(() => Color)
 export class ColorsResolver {
   constructor(private readonly colorsService: ColorsService) {}
 
   @Mutation(() => Color)
+  @UseGuards(PermissionsGuard)
+  @CheckPermissions([PermissionAction.DELETE, 'User'])
   createColor(@Args('createColorInput') createColorInput: CreateColorInput) {
     return this.colorsService.create(createColorInput);
   }
