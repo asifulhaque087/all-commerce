@@ -33,6 +33,7 @@ import { Role } from './roles/entities/role.entity';
 import { Permission } from './permissions/entities/permission.entity';
 import { AuthModule } from './auth/auth.module';
 import { OrderModule } from './order/order.module';
+import { Order, OrderProduct } from './order/entities/order.entity';
 
 @Module({
   imports: [
@@ -66,6 +67,8 @@ import { OrderModule } from './order/order.module';
         Role,
         Permission,
         UserRole,
+        Order,
+        OrderProduct,
       ],
 
       synchronize: true,
