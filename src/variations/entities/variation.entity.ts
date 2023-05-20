@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { AttributeValue } from 'src/attribute-values/entities/attribute-value.entity';
+import { OrderProduct } from 'src/order/entities/order.entity';
 import { Product } from 'src/products/entities/product.entity';
 import {
   Column,
@@ -39,6 +40,10 @@ export class Variation {
   @OneToMany((type) => VariationValue, (varval) => varval.variation)
   @Field((type) => [VariationValue])
   varvals: VariationValue[];
+
+  @OneToMany((type) => OrderProduct, (op) => op.variation)
+  @Field((type) => [OrderProduct])
+  orders: OrderProduct[];
 }
 
 // variation value
